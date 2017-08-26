@@ -12,4 +12,12 @@ class Transaction extends Model
         'buyer_id',
         'product_id',
     ];
+    public function buyer()
+    {
+        return $this->belongsTo('App\Buyer');
+    }
+    public function product()
+    {
+        return $this->belongsTo('App\Product');
+    }
 }
