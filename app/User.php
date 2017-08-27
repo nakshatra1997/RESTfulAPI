@@ -32,6 +32,8 @@ class User extends Authenticatable
      *
      * @var array
      */
+    protected $table='users'; //bcoz when u will try to seed it will ask
+    //for seller and buyer table and those tables are inherited from users
     protected $hidden = [
         'password',
         'remember_token',

@@ -17,10 +17,11 @@ class Product extends Model
         'status',
         'image',
         'seller_id',
+
     ];
     public function isAvailable()
     {
-         $this->status==Product::AVAILABLE_PRODUCT;
+         $this->status=Product::AVAILABLE_PRODUCT;
     }
     public function categories()
     {
