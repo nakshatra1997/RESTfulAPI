@@ -89,6 +89,10 @@ class Handler extends ExceptionHandler
             {
                 return $this->errorResponse("can not delete the resource permanently as it is related to another resource",409);
             }
+            else if($errorCode==1062)
+            {
+                return $this->errorResponse('duplicate entry',422);
+            }
 
         }
         if(config('app.debug'))

@@ -31,7 +31,9 @@ class BuyerController extends ApiController
      */
     public function show($id)
     {
-        //
+        //in this case we can not use Buyer $buyer in show's argument as there is one restriction that it must have
+        //atleast 1 transaction therefore we must use global scope which automatically add this restriction
+        //see scopes/buyerScope.php
         $buyer=Buyer::has('transactions')->findOrFail($id);
         return $this->showOne($buyer);
 
