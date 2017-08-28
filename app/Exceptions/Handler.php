@@ -3,10 +3,15 @@
 namespace App\Exceptions;
 use App\Traits\ApiResponser;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -57,7 +62,41 @@ class Handler extends ExceptionHandler
               $modelName=strtolower(class_basename($exception->getModel())); //class basename is used to remove the app namespace
               return $this->errorResponse("does not exists any {$modelName} with the specified indentificator",404);
         }
-        return parent::render($request, $exception);
+        if($exception instanceof AuthenticationException)     //for returning validation errors as json response
+        {
+            return $this->unauthenticated($request, $exception);
+        }
+        if($exception instanceof AuthorizationException)
+        {
+            return $this->errorResponse($exception->getMessage(),403);//403 MEANS UNAUTHORIZED
+        }
+        if($exception instanceof NotFoundHttpException)
+        {
+            return $this->errorResponse("the specified url doesnt exist",404);
+        }
+        if($exception instanceof MethodNotAllowedHttpException)
+        {
+            return $this->errorResponse("the specified method for the request is invalid",405);
+        }
+        if($exception instanceof HttpException)
+        {
+            return $this->errorResponse($exception->getMessage(),$exception->getStatusCode());
+        }
+        if($exception instanceof QueryException)
+        {
+            $errorCode=$exception->errorInfo[1];
+            if($errorCode==1451)
+            {
+                return $this->errorResponse("can not delete the resource permanently as it is related to another resource",409);
+            }
+
+        }
+        if(config('app.debug'))
+        {
+            return parent::render($request, $exception);
+        }
+        return $this->errorResponse('unexpected error .try later',500);
+
     }
 
     /**
@@ -69,11 +108,7 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        if ($request->expectsJson()) {
-            return response()->json(['error' => 'Unauthenticated.'], 401);
-        }
-
-        return redirect()->guest(route('login'));
+        return $this->errorResponse('unauthenticated',401);
     }
     //this is for returning validation errors as json
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
