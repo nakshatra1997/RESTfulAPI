@@ -4,6 +4,7 @@ namespace App\Exceptions;
 use App\Traits\ApiResponser;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 
@@ -50,6 +51,11 @@ class Handler extends ExceptionHandler
         if($exception instanceof ValidationException)     //for returning validation errors as json response
         {
              return $this->convertValidationExceptionToResponse($exception,$request);
+        }
+        if($exception instanceof ModelNotFoundException)
+        {
+              $modelName=strtolower(class_basename($exception->getModel())); //class basename is used to remove the app namespace
+              return $this->errorResponse("does not exists any {$modelName} with the specified indentificator",404);
         }
         return parent::render($request, $exception);
     }
