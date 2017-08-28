@@ -29,10 +29,10 @@ Route::resource('users','User\UserController',['except'=>['create','edit']]);
 Route::resource('sellers','Seller\SellerController',['only'=>['index','show']]);
 
 /* PRODUCTS--------------------------------------------------------------*/
-Route::resource('buyers','Product\ProductController',['only'=>['index','show']]);
+Route::resource('products','Product\ProductController',['only'=>['index','show']]);
 
 /* TRANSACTIONS--------------------------------------------------------------*/
-Route::resource('buyers','Transaction\TransactionController',['only'=>['index','show']]);
+Route::resource('transactions','Transaction\TransactionController',['only'=>['index','show']]);
 
 /* CATEGORIES--------------------------------------------------------------*/
-Route::resource('buyers','Category\CategoryController',['except'=>['create','edit']]);
+Route::resource('categories','Category\CategoryController',['except'=>['create','edit']]);
