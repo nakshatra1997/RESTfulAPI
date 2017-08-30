@@ -8,6 +8,7 @@ use App\User;
 use Illuminate\Foundation\Testing\HttpException;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Storage;
 
 class SellerProductController extends ApiController
 {
@@ -42,7 +43,8 @@ class SellerProductController extends ApiController
         $this->validate($request,$rules);
         $data=$request->all();
         $data['status']=Product::UNAVAILABLE_PRODUCT;
-        $data['image']='1.jpg';
+//        $data['image']='1.jpg'; IT SHOULD BE DYNAMIC
+        $data['image']=$request->image->store(''); //it will automatically take the path from the filesystem.php
         $data['seller_id']=$seller->id;
         $product=Product::create($data);
         return $this->showOne($product);
@@ -78,6 +80,11 @@ class SellerProductController extends ApiController
                   return $this->errorResponse('an active product must have at least one category',409);
             }
         }
+        if($request->hasFile('image')) //hasFile method not found
+        {
+            Storage::delete($product->image);
+            $product->image=$request->image->store('');
+        }
         if($product->isClean())
         {
             return $this->errorResponse('you need to specify a different value to update',422);
@@ -95,7 +102,10 @@ class SellerProductController extends ApiController
     public function destroy(Seller $seller,Product $product)
     {
         $this->checkSeller($seller,$product);
+        //along with product ,we need to delete the image also
+
         $product->delete();
+        Storage::delete($product->image);
         return $this->showOne($product);
     }
 }
