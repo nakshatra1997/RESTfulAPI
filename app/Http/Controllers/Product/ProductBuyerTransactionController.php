@@ -34,7 +34,7 @@ class ProductBuyerTransactionController extends ApiController
         {
             return $this->errorResponse('the buyer must be a verified user',409);
         }
-        
+
         if(!$product->seller->isVerified())
         {
             return $this->errorResponse('the seller must be a verified user',409);

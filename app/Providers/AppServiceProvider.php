@@ -16,12 +16,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        Schema::defaultStringLength(191);
+        Schema::defaultStringLength(191); //why this is not working..???
         Product::updated(function(Product $product)//it was only $product
         {
             if($product->quantity==0&&$product->isAvailable())
             {
-                $product->status=Product::UNAVAILABLE_PRODUCT;
+                $product->status=Product::UNAVAILABLE_PRODUCT; //it will automatically make the status unavailable
                 $product->save();
             }
         });
