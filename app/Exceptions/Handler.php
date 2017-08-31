@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -82,6 +83,10 @@ class Handler extends ExceptionHandler
         {
             return $this->errorResponse($exception->getMessage(),$exception->getStatusCode());
         }
+        if($exception instanceof TokenMismatchException)
+        {
+            return redirect()->back()->withInput($request->input());
+        }
         if($exception instanceof QueryException)
         {
             $errorCode=$exception->errorInfo[1];
@@ -112,12 +117,27 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
+        if($this->isFrontEnd($request))
+        {
+            return redirect()->guest('login');
+        }
         return $this->errorResponse('unauthenticated',401);
     }
     //this is for returning validation errors as json
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
         $errors=$e->validator->errors()->getMessages();
+        if($this->isFrontEnd($request))
+        {
+            return $request->ajax()?response()->json($errors,422):redirect()
+                ->back()
+                ->withInput($request->input())
+                ->withErrors($errors);
+        }
         return $this->errorResponse($errors,422);
+    }
+    private function isFrontEnd( $request)
+    {
+        return $request->acceptsHtml() && collect($request->route()->middleware())->contains('web');
     }
 }
