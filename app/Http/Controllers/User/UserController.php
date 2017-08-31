@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Mail\UserCreated;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends ApiController
 {
@@ -123,8 +125,24 @@ class UserController extends ApiController
     public function destroy(User $user)
     {
         //
-
         $user->delete();
         return $this->showOne($user);
+    }
+    public function verify($token)
+    {
+        $user=User::where('verification_token',$token)->firstOrFail();
+        $user->verified=User::VERIFIED_USER;
+        $user->verification_token=null;
+        $user->save();
+        return $this->showMessage('the account has been verified successfully');
+    }
+    public function resend(User $user)
+    {
+        if($user->isVerified())
+        {
+            return $this->errorResponse('this user is already registered',409);
+        }
+        Mail::to($user)->send(new UserCreated($user));
+        return $this->showMessage('the verification email has been send');
     }
 }

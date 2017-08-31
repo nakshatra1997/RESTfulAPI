@@ -19,6 +19,12 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
+        //while seeding the mail was also going to the respective seeding entities
+        //to avoid this
+        User::flushEventListeners();
+        Category::flushEventListeners();
+        Product::flushEventListeners();
+        Transaction::flushEventListeners();
         DB::statement('SET FOREIGN_KEY_CHECKS=0'); //statement method not found
         //with the above statement the database is not going to verify the foreign key
         // $this->call(UsersTableSeeder::class);

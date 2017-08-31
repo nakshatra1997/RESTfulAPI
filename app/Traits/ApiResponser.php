@@ -24,6 +24,6 @@ trait ApiResponser
     }
     protected function showMessage($message,$code=200)
     {
-        return $this->successResponse(['data'=>$message,$code]);
+        return $this->successResponse(['data'=>$message],$code);
     }
 }

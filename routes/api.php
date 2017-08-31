@@ -59,3 +59,5 @@ Route::resource('categories.products','Category\CategoryProductController',['onl
 Route::resource('categories.sellers','Category\CategorySellerController',['only'=>['index']]);
 Route::resource('categories.transactions','Category\CategoryTransactionController',['only'=>['index']]);
 Route::resource('categories.buyers','Category\CategoryBuyerController',['only'=>['index']]);
+Route::name('verify')->get('users/verify/{token}','User\UserController@verify');
+Route::name('resend')->get('users/{user}/resend','User\UserController@resend');
